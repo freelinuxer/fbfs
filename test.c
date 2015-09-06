@@ -4,7 +4,7 @@
 #include <sys/mman.h>
 #include <string.h>
 
-#define FN "/g5/testopmap"
+#define FN "/tmp/mytest"
 #define DOTS "......................................\n"
 int main()
 {
