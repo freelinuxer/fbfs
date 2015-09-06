@@ -4,7 +4,11 @@ CC=gcc
 CFLAGS=-I. -g -Wall
 MKDIR_P=mkdir -p
 
-all: ${ODIR} ${BINDIR} $(BINDIR)/fbfs 
+all: directories programs
+	
+programs: $(BINDIR)/fbfs 
+
+directories: ${ODIR} ${BINDIR}
 
 ${ODIR}:
 	${MKDIR_P} ${ODIR}
