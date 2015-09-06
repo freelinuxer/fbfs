@@ -14,7 +14,7 @@ $(ODIR)/fbfs.o: fbfs.c
 .PHONY: clean
 
 clean:
-		rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+		rm -f $(ODIR)/* *~ core $(INCDIR)/*~ 
 cleanall:
-		rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ $(BINDIR)/*
+		rm -f $(ODIR)/* *~ core $(INCDIR)/*~ $(BINDIR)/*
 
