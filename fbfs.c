@@ -12,9 +12,6 @@ int main (int argc, char *argv[])
     FS_META *fm;
     FS_META *fm_read;
     int fd = -1;
-    int i = 0;
-    char *c = NULL;
-    int flag = 0;
     int len = 4096;
     char *addr = NULL;
     off_t off = 0;
@@ -28,14 +25,14 @@ int main (int argc, char *argv[])
             fs_fn = optarg;
             break;
         default:
-	    printf("Usage: cmd -f <file name for filesystem> \n");
-            printf("Invalid options/args...\n");
+	    printf("\tUsage: cmd -f <file name for filesystem> \n");
+            printf("\tInvalid options/args...\n");
   	    break;
  	}
     }
 
     if(!fs_fn) {
-        fprintf(stderr, "Need to specify -f <filename for filesystem> ...\n");
+        fprintf(stderr, "\tNeed to specify -f <filename for filesystem> ...\n");
         exit(1);
     }
 
@@ -47,11 +44,11 @@ int main (int argc, char *argv[])
        // file doesn't exist
     }
 
-
     if (fd < 0) {
         fprintf(stdout, "Failed to open file %s",fs_fn);
         exit(1);
     }
+
     if (ftruncate(fd, len/4) == -1) {
         printf("error in truncate");
        exit(0);
@@ -100,4 +97,5 @@ int main (int argc, char *argv[])
     fprintf(stdout, "fs_size: %d\n", fm_read->fs_size);
     fprintf(stdout, "block_size: %d\n", fm_read->block_size);
 
+    return 0;
 } 
