@@ -96,6 +96,8 @@ int main (int argc, char *argv[])
     fprintf(stdout, "rootdir: %s\n", fm_read->rootdir);
     fprintf(stdout, "fs_size: %d\n", fm_read->fs_size);
     fprintf(stdout, "block_size: %d\n", fm_read->block_size);
+     
+    close(fd);
 
     return 0;
 } 
