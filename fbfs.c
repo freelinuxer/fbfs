@@ -65,8 +65,6 @@ int main (int argc, char *argv[])
     fm->fs_size = 512 * 1024;
     fm->block_size = 512;
     
-    
-    
     addr = mmap(NULL, len/4, PROT_READ|PROT_WRITE, MAP_SHARED, fd, off);
     if (addr == NULL) {
         printf("Error in mmap");
