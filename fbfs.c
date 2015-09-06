@@ -3,11 +3,10 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <unistd.h>
 #include "fbfs.h"
 
-#define FN "/tmp/mytest"
-#define DOTS "......................................\n"
-int main()
+int main (int argc, char *argv[])
 {
 
     FS_META *fm;
@@ -19,11 +18,38 @@ int main()
     int len = 4096;
     char *addr = NULL;
     off_t off = 0;
-    unlink(FN);
-    fd = open(FN, O_CREAT| O_RDWR| O_EXCL, S_IRUSR | S_IWUSR);
+
+    char *fs_fn = NULL;
+    int opt = 0;
+
+    while ((opt = getopt(argc, argv, "f:")) != -1) {
+        switch(opt) {
+        case 'f':
+            fs_fn = optarg;
+            break;
+        default:
+	    printf("Usage: cmd -f <file name for filesystem> \n");
+            printf("Invalid options/args...\n");
+  	    break;
+ 	}
+    }
+
+    if(!fs_fn) {
+        fprintf(stderr, "Need to specify -f <filename for filesystem> ...\n");
+        exit(1);
+    }
+
+    if(access(fs_fn, F_OK) != -1) {
+        // file exists
+        fd = open(fs_fn, O_RDWR| O_EXCL, S_IRUSR | S_IWUSR);
+    } else {
+        fd = open(fs_fn, O_CREAT| O_RDWR| O_EXCL, S_IRUSR | S_IWUSR);
+       // file doesn't exist
+    }
+
 
     if (fd < 0) {
-        fprintf(stdout, "Failed to open file %s", FN);
+        fprintf(stdout, "Failed to open file %s",fs_fn);
         exit(1);
     }
     if (ftruncate(fd, len/4) == -1) {
@@ -47,17 +73,17 @@ int main()
         exit(0);
     }
 
-    fprintf(stdout, "Writing to %s....\n", FN);
+    fprintf(stdout, "Writing to %s....\n", fs_fn);
     memcpy(addr, fm, sizeof(FS_META));
 
     close(fd);
 
 
-    fprintf(stdout, "OPENING %s to read data ....\n", FN);
-    fd = open(FN, O_RDWR| O_EXCL, S_IRUSR | S_IWUSR);
+    fprintf(stdout, "Opening %s to read data ....\n", fs_fn);
+    fd = open(fs_fn, O_RDWR| O_EXCL, S_IRUSR | S_IWUSR);
 
     if (fd < 0) {
-        fprintf(stdout, "Failed to open file %s", FN);
+        fprintf(stdout, "Failed to open file %s", fs_fn);
         exit(1);
     }
 
