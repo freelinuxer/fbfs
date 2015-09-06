@@ -1,4 +1,4 @@
-# fofs
+# fbfs
 
 - cmd that creates filesystem and mount it. 
 - umount(close) the file. 
