@@ -15,6 +15,8 @@ int main (int argc, char *argv[])
     int mmap_len = sysconf(_SC_PAGE_SIZE);
     char *addr = NULL;
     off_t off = 0;
+    int block_size = 512 * 1024; //this would be set in stanza file. 
+    int fs_size = 1024 * 1024;
 
     char *fs_fn = NULL;
     int opt = 0;
@@ -63,8 +65,8 @@ int main (int argc, char *argv[])
     strcpy(fm->name, "foo_fs");
     fm->meta_type= 0; /* meta data type: 0 - root dir */
     strcpy(fm->rootdir, "/");
-    fm->fs_size = 512 * 1024;
-    fm->block_size = 512;
+    fm->fs_size = fs_size;
+    fm->block_size = block_size;
     
     addr = mmap(NULL, mmap_len, PROT_READ|PROT_WRITE, MAP_SHARED, fd, off);
     if (addr == NULL) {
@@ -81,8 +83,8 @@ int main (int argc, char *argv[])
     strcpy(fm->name, "boo");
     fm->meta_type= 1; /* meta data type: 0 - root dir */
     strcpy(fm->rootdir, "/boo");
-    fm->fs_size = 512 * 1024;
-    fm->block_size = 512;
+    fm->fs_size = fs_size;
+    fm->block_size = block_size;
     
     // no mmap for 2nd write. just jump 512 bytes from addr 
     //addr = mmap(NULL, mmap_len, PROT_READ|PROT_WRITE, MAP_SHARED, fd, off);
@@ -92,7 +94,7 @@ int main (int argc, char *argv[])
     //}
 
     fprintf(stdout, "Writing to %s for %s metadata....\n\n", fs_fn, fm->name);
-    memcpy(addr+512, fm, sizeof(FS_META));
+    memcpy(addr+block_size, fm, sizeof(FS_META));
     /* end of 2nd write */
 
     munmap(addr, mmap_len);
@@ -126,7 +128,7 @@ int main (int argc, char *argv[])
      
     /* 2nd read */
     memset(fm_read, 0, sizeof(FS_META));
-    memcpy(fm_read, addr+512, sizeof(FS_META));
+    memcpy(fm_read, addr+block_size, sizeof(FS_META));
 
     fprintf(stdout, "name: %s\n", fm_read->name);
     fprintf(stdout, "meta_type: %d\n", fm_read->meta_type);
