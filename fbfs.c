@@ -73,6 +73,7 @@ int main (int argc, char *argv[])
 
     close(fd);
 
+    fprintf(stdout, "system page size: %ld \n", sysconf(_SC_PAGE_SIZE));
 
     /* open file and mmap to read */
     fprintf(stdout, "Opening %s to read data ....\n", fs_fn);
