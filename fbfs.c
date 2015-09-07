@@ -15,7 +15,8 @@ int main (int argc, char *argv[])
     int mmap_len = sysconf(_SC_PAGE_SIZE);
     char *addr = NULL;
     off_t off = 0;
-    int block_size = 512 * 1024; //this would be set in stanza file. 
+    int block_size = 512; //this would be set in stanza file. 
+                            // TOO small ???
     int fs_size = 1024 * 1024;
 
     char *fs_fn = NULL;
