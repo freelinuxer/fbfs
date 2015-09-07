@@ -74,6 +74,7 @@ int main (int argc, char *argv[])
     close(fd);
 
 
+    /* open file and mmap to read */
     fprintf(stdout, "Opening %s to read data ....\n", fs_fn);
     fd = open(fs_fn, O_RDWR| O_EXCL, S_IRUSR | S_IWUSR);
 
