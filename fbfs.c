@@ -6,9 +6,6 @@
 #include <unistd.h>
 #include "fbfs.h"
 
-//int fd;
-//void *start;
-//size_t len;
 
 int
 add_block (int fd, void *start, size_t *len, off_t at, void *block, size_t size)
