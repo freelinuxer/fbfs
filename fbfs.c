@@ -6,30 +6,59 @@
 #include <unistd.h>
 #include "fbfs.h"
 
-int main (int argc, char *argv[])
+//int fd;
+//void *start;
+//size_t len;
+
+int
+add_block (int fd, void *start, size_t *len, off_t at, void *block, size_t size)
+{
+    if (at + size > *len)
+    {
+        /* Resize the file and remap.  */
+        size_t ps = sysconf (_SC_PAGESIZE);
+        size_t ns = (at + size + ps - 1) & ~(ps - 1);
+        void *np;
+        if (ftruncate (fd, ns) < 0)
+            return -1;
+        np = mmap (NULL, ns, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+        if (np == MAP_FAILED)
+            return -1;
+        start = np;
+        *len = ns;
+    }
+    memcpy ((char *) start + at, block, size);
+    return 0;
+}
+
+
+int 
+main (int argc, char *argv[])
 {
 
     FS_META *fm;
     FS_META *fm_read;
     int fd = -1;
-    int mmap_len = sysconf(_SC_PAGE_SIZE);
+    size_t mmap_len = sysconf(_SC_PAGE_SIZE);
     char *addr = NULL;
     off_t off = 0;
     int block_size = 512; //this would be set in stanza file. 
-                            // TOO small ???
     int fs_size = 1024 * 1024;
 
     char *fs_fn = NULL;
     int opt = 0;
 
     fprintf(stdout, "\nsystem page size: %ld \n\n", sysconf(_SC_PAGE_SIZE));
-    while ((opt = getopt(argc, argv, "f:")) != -1) {
+    while ((opt = getopt(argc, argv, "f:b:")) != -1) {
         switch(opt) {
         case 'f':
             fs_fn = optarg;
             break;
+        case 'b':
+            block_size = atoi(optarg);
+            break;
         default:
-	    printf("\tUsage: cmd -f <file name for filesystem> \n");
+	    printf("\tUsage: cmd -f <file name for filesystem> [-b <block_size>]\n");
             printf("\tInvalid options/args...\n");
   	    break;
  	}
@@ -57,7 +86,7 @@ int main (int argc, char *argv[])
 
     if (ftruncate(fd, mmap_len) == -1) {
         printf("error in truncate");
-       exit(0);
+        exit(0);
     }
 
     /* 1st write */
@@ -76,7 +105,8 @@ int main (int argc, char *argv[])
     }
 
     fprintf(stdout, "Writing to %s for %s metadata....\n\n", fs_fn, fm->name);
-    memcpy(addr, fm, sizeof(FS_META));
+    //memcpy(addr, fm, sizeof(FS_META));
+    add_block (fd, addr,  &mmap_len, 0, fm, sizeof(FS_META));
     /* end of 1st write */
 
 
@@ -88,14 +118,9 @@ int main (int argc, char *argv[])
     fm->block_size = block_size;
     
     // no mmap for 2nd write. just jump 512 bytes from addr 
-    //addr = mmap(NULL, mmap_len, PROT_READ|PROT_WRITE, MAP_SHARED, fd, off);
-    //if (addr == NULL) {
-    //    printf("Error in mmap");
-    //    exit(0);
-    //}
-
     fprintf(stdout, "Writing to %s for %s metadata....\n\n", fs_fn, fm->name);
-    memcpy(addr+block_size, fm, sizeof(FS_META));
+    add_block (fd, addr,  &mmap_len, block_size, fm, sizeof(FS_META));
+    //memcpy(addr+block_size, fm, sizeof(FS_META));
     /* end of 2nd write */
 
     munmap(addr, mmap_len);
@@ -142,3 +167,4 @@ int main (int argc, char *argv[])
 
     return 0;
 } 
+
